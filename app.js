@@ -25,10 +25,11 @@ var connection = mysql.createConnection(connectionConfig);
 connection.connect(function (error) {
     if (error) throw error;
     console.log(`connected as id ${connection.threadId}`);
-    viewEmployee ();
-    viewRole();
-    viewDepartment ();
-    addDepartment ();
+    // viewEmployee ();
+    // viewRole();
+    // viewDepartment ();
+    // addDepartment ();
+    addRole ();
 });
 
 function startQuestions() {
@@ -97,7 +98,22 @@ function addDepartment () {
       });
 };
 
-function addRole () {};
+function addRole () {
+    console.log("Inserting a new role...\n");
+    let query = connection.query(
+      "INSERT INTO role SET ?",
+      {
+        title: "Social Media Lead",
+        salary: "65000",
+        department_id: "7"
+
+      },
+      function (error, response) {
+        if (error) throw error;
+        console.log(response.affectedRows  + " role inserted!\n");
+        console.log(query.sql);
+      });
+};
 
 function addEmployee () {};
 
