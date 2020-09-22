@@ -27,7 +27,8 @@ connection.connect(function (error) {
     console.log(`connected as id ${connection.threadId}`);
     viewEmployee ();
     viewRole();
-    viewDepartment ()
+    viewDepartment ();
+    addDepartment ();
 });
 
 function startQuestions() {
@@ -82,7 +83,19 @@ function viewEmployee () {
         });
     };
 
-function addDepartment () {};
+function addDepartment () {
+    console.log("Inserting a new department...\n");
+    let query = connection.query(
+      "INSERT INTO department SET ?",
+      {
+        name: "Public Relations"
+      },
+      function (error, response) {
+        if (error) throw error;
+        console.log(response.affectedRows  + " department inserted!\n");
+        console.log(query.sql);
+      });
+};
 
 function addRole () {};
 
