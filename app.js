@@ -26,14 +26,49 @@ connection.connect(function (error) {
     if (error) throw error;
     console.log(`connected as id ${connection.threadId}`);
     viewEmployee ();
+    viewRole();
+    viewDepartment ()
 });
 
-function viewDepartment () {};
+function startQuestions() {
+    inquirer
+        .prompt({
 
-function viewRole () {};
+        });
+};
+
+function viewDepartment () {
+    console.log("Selecting your department...\n");
+    connection.query("SELECT * FROM department WHERE ?",
+    [
+        {
+            name: "Legal"
+        }
+    ],
+    function (error, response) {
+        if (error) throw error;
+        // Log all results of the SELECT statement
+        console.log(response);
+        });
+};
+
+function viewRole () {
+    console.log("Selecting your role...\n");
+    connection.query("SELECT * FROM role WHERE ?",
+    [
+        {
+            title: "Lawyer"
+        }
+    ],
+    function (error, response) {
+        if (error) throw error;
+        // Log all results of the SELECT statement
+        console.log(response);
+        });
+};
 
 function viewEmployee () {
-    console.log("Selecting all employees...\n");
+    console.log("Selecting your employee...\n");
     connection.query("SELECT * FROM employee WHERE ?",
     [
         {
@@ -44,7 +79,6 @@ function viewEmployee () {
         if (error) throw error;
         // Log all results of the SELECT statement
         console.log(response);
-        connection.end();
         });
     };
 
