@@ -20,7 +20,7 @@ const connectionConfig = {
     database: "employee_db"
 };
 
-var connection = mysql.createConnection(connectionConfig);
+let connection = mysql.createConnection(connectionConfig);
 
 connection.connect(function (error) {
     if (error) throw error;
@@ -29,7 +29,8 @@ connection.connect(function (error) {
     // viewRole();
     // viewDepartment ();
     // addDepartment ();
-    addRole ();
+    // addRole ();
+    addEmployee ();
 });
 
 function startQuestions() {
@@ -115,7 +116,23 @@ function addRole () {
       });
 };
 
-function addEmployee () {};
+function addEmployee () {
+    console.log("Inserting a new employee...\n");
+    let query = connection.query(
+      "INSERT INTO employee SET ?",
+      {
+        first_name: "Reka",
+        last_name: "Barton",
+        role_id: "16",
+        manager_id: "2" 
+
+      },
+      function (error, response) {
+        if (error) throw error;
+        console.log(response.affectedRows  + " employee inserted!\n");
+        console.log(query.sql);
+      });
+};
 
 function updateEmployeeRoles () {};
 
