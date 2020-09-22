@@ -1,0 +1,25 @@
+{
+  "name": "employee-tracker",
+  "version": "1.0.0",
+  "description": "A CLI application which can manaeg a company's employees using node, inquirer, and MySQL.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rogers-Development-Services/Employee-Tracker.git"
+  },
+  "author": "Matthew Rogers",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Rogers-Development-Services/Employee-Tracker/issues"
+  },
+  "homepage": "https://github.com/Rogers-Development-Services/Employee-Tracker#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.3.3",
+    "mysql": "^2.18.1"
+  }
+}
