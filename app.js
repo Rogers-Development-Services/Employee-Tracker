@@ -79,9 +79,10 @@ function viewAllEmployees() {
     console.log("Selecting all current employees...\n");
     connection.query(`SELECT e.id, e.first_name, e.last_name, r.title, d.department_name, r.salary, concat(m.first_name, " ", m.last_name) AS manager
     FROM employee_db.employee AS e
-    JOIN employee_db.manager AS m ON e.manager_id = m.id
-    JOIN employee_db.role AS r ON e.role_id = r.id
-    JOIN employee_db.department AS d ON r.department_id = d.id;`,
+    LEFT JOIN employee_db.employee AS m ON e.manager_id = m.id
+    JOIN employee_db.role AS r ON e.role_id = r.id				
+    JOIN employee_db.department AS d ON r.department_id = d.id
+    ORDER BY e.id ASC;`,
         function (error, response) {
             if (error) throw error;
             // Log all results of the SELECT statement
@@ -156,67 +157,129 @@ function viewAllRoles() {
 // DONE
 function addRole() {
     console.log("Inserting a new role...\n");
-    const roleTableObj = [];
-    connection.query(`SELECT id, title FROM employee_db.role`,
-        function (error, rowData) {
-            if (error) throw error;
-            rowData.forEach((row) => {
-                let roleObj = {
-                    name: row.title,
-                    value: row.id
-                }
-                // console.log(roleObj);
-                roleTableObj.push(roleObj);
-            });
-        })
-    inquirer
-        .prompt([
-            {
-                name: "roleName",
-                type: "input",
-                message: "What is name of the new role?"
-            },
-            {
-                name: "roleSalary",
-                type: "input",
-                message: "What is the annual salary for this role?"
-            },
-            {
-                name: "roleDepartment",
-                type: "list",
-                message: "Choose Department",
-                choices: roleTableObj,
 
-            }//add list of departments , make a function which queries department 
-        ])
-        .then(function (response) {//make another function which Inserts data
-            const roleName = response.roleName;
-            const roleSalary = response.roleSalary;
-            const roleDepartment = response.roleDepartment;
+    // THIS WORKS USE THIS MODEL
+    new Promise(function (resolve, reject) {
+        const roleTableObjArr = [];
+        connection.query(
+            `SELECT id, title FROM employee_db.role`,
+            function (error, rowData) {
+                if (error) reject(error);
+                // console.log(rowData);
+                if (error) throw error;
+                rowData.forEach((row) => {
+                    let roleObj = {
+                        name: row.title,
+                        value: row.id
+                    }
+                    // console.log(roleObj);
+                    roleTableObjArr.push(roleObj);
+                    resolve(roleTableObjArr);
+                });
+            })
+    }).then((response) => {
+        console.log("This is the response from the SELECT ROLE PROMISE: ", response);
+    });
 
-            let roleQuery = connection.query(
-                `INSERT INTO employee_db.role (title, salary, department_id) VALUES ("${roleName}", "${roleSalary}", "${roleDepartment}");`,
-                function (error, result) {
-                    if (error) throw error;
-                    // console.log(result);
-                    console.log(result.affectedRows + " department inserted!\n");
-                    // console.log(roleQuery);
-                    console.table(result);
-                }
-            );
-        });
 
-    // connection.query("SELECT * FROM department", function (error, response) {
-    //     if (error) throw error;
-    //     // Log all results of the SELECT statement
-    //     // console.log(response);
-    //     // console.log(response);
-    //     const choices = response.reduce((array, value) => {array.push(value.name); 
-    //         return array}, []);
-    //     console.log("Line 152: ", choices);
-    //     return choices;
-    // })
+    // function roleSelectPromise() {
+    // const roleTableObjArr = [];
+    // connection.query(`SELECT id, title FROM employee_db.role`,
+    //     function (error, rowData) {
+    //         // console.log(rowData);
+    //         if (error) throw error;
+    //         rowData.forEach((row) => {
+    //             let roleObj = {
+    //                 name: row.title,
+    //                 value: row.id
+    //             }
+    //             // console.log(roleObj);
+    //             roleTableObjArr.push(roleObj);
+    //             return roleTableObjArr;
+    //         });
+    //         console.log("This is the Role Table Object Array: \n", roleTableObjArr);
+    //     });
+    // };
+
+    // function roleInsertPromise() {
+    //     connection.query(
+    //         `INSERT INTO employee_db.role (title, salary, department_id) VALUES ("${roleName}", "${roleSalary}", "${roleDepartment}");`,
+    //         function (error, result) {
+    //             if (error) throw error;
+    //             // console.log(result);
+    //             console.log(result.affectedRows + " department inserted!\n");
+    //             // console.log(roleQuery);
+    //             console.table(result);
+    //         }
+    //     );
+    // }
+
+
+    // const roleTableObjArr = [];
+    // connection.query(`SELECT id, title FROM employee_db.role`,
+    //     function (error, rowData) {
+    //         // console.log(rowData);
+    //         if (error) throw error;
+    //         rowData.forEach((row) => {
+    //             let roleObj = {
+    //                 name: row.title,
+    //                 value: row.id
+    //             }
+    //             // console.log(roleObj);
+    //             roleTableObjArr.push(roleObj);
+    //         });
+    //         console.log("This is the Role Table Object Array: \n", roleTableObjArr);
+    //     });
+    // inquirer
+    //     .prompt([
+    //         {
+    //             name: "roleName",
+    //             type: "input",
+    //             message: "What is name of the new role?"
+    //         },
+    //         {
+    //             name: "roleSalary",
+    //             type: "input",
+    //             message: "What is the annual salary for this role?"
+    //         },
+    //         {
+    //             name: "roleDepartment",
+    //             type: "list",
+    //             message: "Choose Department",
+    //             choices: roleTableObjArr,
+
+    //         }//add list of departments , make a function which queries department 
+    //     ])
+    //     .then(function (response) {//make another function which Inserts data
+    //         const roleName = response.roleName;
+    //         const roleSalary = response.roleSalary;
+    //         const roleDepartment = response.roleDepartment;
+
+    //         connection.query(
+    //             `INSERT INTO employee_db.role (title, salary, department_id) VALUES ("${roleName}", "${roleSalary}", "${roleDepartment}");`,
+    //             function (error, result) {
+    //                 if (error) throw error;
+    //                 // console.log(result);
+    //                 console.log(result.affectedRows + " department inserted!\n");
+    //                 // console.log(roleQuery);
+    //                 console.table(result);
+    //             }
+    //         );
+    //         mainMenu();
+    //     });
+
+    //     // connection.query("SELECT * FROM department", function (error, response) {
+    //     //     if (error) throw error;
+    //     //     // Log all results of the SELECT statement
+    //     //     // console.log(response);
+    //     //     // console.log(response);
+    //     //     const choices = response.reduce((array, value) => {array.push(value.name); 
+    //     //         return array}, []);
+    //     //     console.log("Line 152: ", choices);
+    //     //     return choices;
+    //     // })
 };
+
 // WORKING... 
 function addEmployee() {
     console.log("Inserting a new employee...\n");
@@ -235,7 +298,7 @@ function addEmployee() {
             })
             console.log("Employee Table Object: ", roleTableObj);
         })
-    let managerTableObj = [{
+    let managerTableObjArr = [{
         name: "null",
         value: 0
     }];
@@ -248,9 +311,9 @@ function addEmployee() {
                     name: row.name,
                     value: row.id
                 }
-                managerTableObj.push(managerObj);
+                managerTableObjArr.push(managerObj);
             })
-            console.log("Manager Table Object: ", managerTableObj);
+            console.log("Manager Table Object: ", managerTableObjArr);
         })
     inquirer
         .prompt([
@@ -274,7 +337,7 @@ function addEmployee() {
                 name: "employeeManager",
                 type: "list",
                 message: "Who is this employee's manager?",
-                choices: managerTableObj
+                choices: managerTableObjArr
             },
 
         ])
@@ -298,7 +361,7 @@ function addEmployee() {
                 })
         });
 
-            // function getDepartments() {
+    // function getDepartments() {
     //     return new Promise(function (resolve, reject) {
     //         connection.query(
     //             "SELECT * FROM department", function (error, data) {
@@ -317,152 +380,163 @@ function addEmployee() {
     // this makes a .then possible
 
     ////////////////// LOOK AT BELOW LATER /////////////////
-// console.log(response);
-// console.log(response.employeeManager);
-// var nameArr = response.employeeManager.split(" ");
-// console.log("name Arr: ", nameArr);
-// var firstName = nameArr[0];
-// console.log("first Name: ", firstName);
-// var lastName = nameArr[1];
-// console.log("last Name: ", lastName);
+    // console.log(response);
+    // console.log(response.employeeManager);
+    // var nameArr = response.employeeManager.split(" ");
+    // console.log("name Arr: ", nameArr);
+    // var firstName = nameArr[0];
+    // console.log("first Name: ", firstName);
+    // var lastName = nameArr[1];
+    // console.log("last Name: ", lastName);
 
-/*
-SELECT DISTINCT
-    r.id AS role_id,
-    m.id AS manager_id
-FROM employee e
-    LEFT JOIN manager m ON m.id = e.manager_id
-    JOIN role r ON r.id = e.role_id
-WHERE r.title = 'Legal Team Lead'
-    AND m.first_name = 'Lisa'
-    AND m.last_name = 'Rogers'
-*/
+    /*
+    SELECT DISTINCT
+        r.id AS role_id,
+        m.id AS manager_id
+    FROM employee e
+        LEFT JOIN manager m ON m.id = e.manager_id
+        JOIN role r ON r.id = e.role_id
+    WHERE r.title = 'Legal Team Lead'
+        AND m.first_name = 'Lisa'
+        AND m.last_name = 'Rogers'
+    */
 
-// connect to the role table to access role_id and the corresponding title
-// connection.query(
-//     "SELECT DISTINCT r.id AS role_id, m.id AS manager_id FROM employee e LEFT JOIN manager m ON m.id = e.manager_id JOIN role r ON r.id = e.role_id WHERE r.title = ?",  //ideally have 1 select statement
-//     [response.employeeRole],
-//     function (error, idJoin) {
-//         if (error) throw error;
-//         console.log("This is the information from the newly joined table: ", idJoin, idJoin[0].role_id, idJoin[0].manager_id);
+    // connect to the role table to access role_id and the corresponding title
+    // connection.query(
+    //     "SELECT DISTINCT r.id AS role_id, m.id AS manager_id FROM employee e LEFT JOIN manager m ON m.id = e.manager_id JOIN role r ON r.id = e.role_id WHERE r.title = ?",  //ideally have 1 select statement
+    //     [response.employeeRole],
+    //     function (error, idJoin) {
+    //         if (error) throw error;
+    //         console.log("This is the information from the newly joined table: ", idJoin, idJoin[0].role_id, idJoin[0].manager_id);
 
-// connect to the role table to access role_id and from the corresponding selected role title
-// connection.query(
-//     "SELECT id FROM role WHERE title = ?",  //ideally have 1 select statement
-//     [response.employeeRole],
-//     function (error, roleRow) {
-//         if (error) throw error;
-//         console.log("role_id from role table: ", roleRow, roleRow[0].id ); 
+    // connect to the role table to access role_id and from the corresponding selected role title
+    // connection.query(
+    //     "SELECT id FROM role WHERE title = ?",  //ideally have 1 select statement
+    //     [response.employeeRole],
+    //     function (error, roleRow) {
+    //         if (error) throw error;
+    //         console.log("role_id from role table: ", roleRow, roleRow[0].id ); 
 
-// connect to the employee talbe to set name information and use the resulting role id and title 
-// let query1 = connection.query(
-//     "INSERT INTO employee SET ?",
-//     {
-//         first_name: response.firstName,
-//         last_name: response.lastName,
-//         role_id: idJoin[0].role_id,      //the role id is fetched from the first connection.query, we don't need response
-//         manager_id: idJoin[0].manager_id    //??
-//     },
-//     function (error, result) {
-//         if (error) throw error;
-//         console.log(result);
-//         console.log(result.affectedRows + " employee inserted!\n");
-//         console.log(query1.sql);
-//     });
-//                 }
+    // connect to the employee talbe to set name information and use the resulting role id and title 
+    // let query1 = connection.query(
+    //     "INSERT INTO employee SET ?",
+    //     {
+    //         first_name: response.firstName,
+    //         last_name: response.lastName,
+    //         role_id: idJoin[0].role_id,      //the role id is fetched from the first connection.query, we don't need response
+    //         manager_id: idJoin[0].manager_id    //??
+    //     },
+    //     function (error, result) {
+    //         if (error) throw error;
+    //         console.log(result);
+    //         console.log(result.affectedRows + " employee inserted!\n");
+    //         console.log(query1.sql);
+    //     });
+    //                 }
 
-//             );
-//         });
-// };
+    //             );
+    //         });
+    // };
 
-// // connect to the role table to access role_id and the corresponding title
-// connection.query(
-//     "SELECT id FROM role WHERE title = ?",  //ideally have 1 select statement
-//     // "SELECT id FROM role WHERE ?,
-//     //{
-//         // title: response.employeeRole
-//     //}"
-//     [response.employeeRole, ],
-//     function (error, roleRow) {
-//         if (error) throw error;
-//         console.log("This is the information from the specifict role Row: ", roleRow, roleRow[0].id);
+    // // connect to the role table to access role_id and the corresponding title
+    // connection.query(
+    //     "SELECT id FROM role WHERE title = ?",  //ideally have 1 select statement
+    //     // "SELECT id FROM role WHERE ?,
+    //     //{
+    //         // title: response.employeeRole
+    //     //}"
+    //     [response.employeeRole, ],
+    //     function (error, roleRow) {
+    //         if (error) throw error;
+    //         console.log("This is the information from the specifict role Row: ", roleRow, roleRow[0].id);
 
-// connection.query(
-//     "SELECT id FROM manager WHERE title =?",
-//     [response.employeeManager],
-//     function (error, managerRow) {
-//         if (error) throw error;
-//         console.log("This is the info for the specific manager Row: ", managerRow, managerRow[0].id);
-//     });
+    // connection.query(
+    //     "SELECT id FROM manager WHERE title =?",
+    //     [response.employeeManager],
+    //     function (error, managerRow) {
+    //         if (error) throw error;
+    //         console.log("This is the info for the specific manager Row: ", managerRow, managerRow[0].id);
+    //     });
 }
-// WORKING
+// WORKING...
 function updateEmployeeRole() {
     console.log("Updating employee role...\n");
     const employeeObjectArray = [];
     const roleObjectArray = [];
     connection.query(
-       `SELECT id, concat(first_name, ' ', last_name) AS full_name FROM employee_db.employee`,
-       function(error, eRowData) {
-        //    console.log(eRowData);
-           if(error) throw error;
-           eRowData.forEach(function(row) {
-               let employeeObj = {
-                   name: row.full_name,
-                   value: row.id
-               }
-               employeeObjectArray.push(employeeObj);
-           })
-        //    console.log("Employee Object Array: \n", employeeObjectArray);
-       })
-    connection.query(
-       'SELECT  r.id, r.title FROM employee_db.role AS r',
-       function(error, rRowData) {
-           console.log(rRowData);
-           if(error) throw error;
-           rRowData.forEach(function(row) {
-               let roleObj = {
-                   name: row.title,
-                   value: row.id
-               }
-            roleObjectArray.push(roleObj);
-           })
-            console.log("Employee Object Array: \n", employeeObjectArray);
-       })
-    inquirer
-       .prompt([
-           {
-            name: "employeeName",
-            type: "list",
-            message: "Which employee's role are you updating?",
-            choices: employeeObjectArray
-           },
-           {
-            name: "roleTitle",
-            type: "list",
-            message: "Which role is this employee being updated to?",
-            choices: roleObjectArray
-           },
-        ])
-        .then(function(response) {
-            console.log(response);
-            mainMenu();
-        })
-        .catch(function(error){
+        `SELECT id, concat(first_name, ' ', last_name) AS full_name FROM employee_db.employee`,
+        function (error, eRowData) {
+            //    console.log(eRowData);
             if (error) throw error;
+            eRowData.forEach(function (row) {
+                let employeeObj = {
+                    name: row.full_name,
+                    value: row.id
+                }
+                employeeObjectArray.push(employeeObj);
+            })
         });
+    //    console.log("Employee Object Array: \n", employeeObjectArray);
 
-        //     const employeeName = response.employeeName;
-        //     const roleTitle = response.roleTitle;
-        //     connection.query(
-        //        `UPDATE employee_db.employee SET role_id = "${roleTitle}" WHERE id = "${employeeName}"`,
-        //        function(error, data) {
-        //            if(error) throw error;
-        //            console.log(result.affectedRows + `${employeeName}` + "has had their role updated to " + `${roleTitle}`);
-        //            // console.log(roleQuery);
-        //            console.table(result);
-        //         });
-        // })
+    connection.query(
+        'SELECT  r.id, r.title FROM employee_db.role AS r',
+        function (error, rRowData) {
+            // console.log(rRowData);
+            if (error) throw error;
+            rRowData.forEach(function (row) {
+                let roleObj = {
+                    name: row.title,
+                    value: row.id
+                }
+                roleObjectArray.push(roleObj);
+            })
+            // console.log("Employee Object Array: \n", employeeObjectArray);
+
+            inquirer
+                .prompt([
+                    {
+                        name: "employeeName",
+                        type: "list",
+                        message: "Which employee's role are you updating?",
+                        choices: employeeObjectArray
+                    },
+                    {
+                        name: "roleTitle",
+                        type: "list",
+                        message: "Which role is this employee being updated to?",
+                        choices: roleObjectArray
+                    },
+                ]).then(function (response) {
+                    const employeeName = response.employeeName;
+                    const roleTitle = response.roleTitle;
+                    connection.query(
+                        `UPDATE employee_db.employee SET role_id = "${roleTitle}" WHERE id = "${employeeName}"`,
+                        function (error, result) {
+                            if (error) throw error;
+                            console.log(result.affectedRows + `${employeeName}` + " has had their role updated to " + `${roleTitle}`);
+                            // console.log(roleQuery);
+                            console.table(result);
+                            mainMenu();
+                        });
+                })
+        }
+    )
 };
+
+// .then(function (response) {    //this is the last  declared .then "the last one" which holds all others
+//     console.log(response);
+//     mainMenu();
+//   .then(function(2response) {
+// this is where the first 2 promises will return the arrays to inquirer
+// }
+// .then())
+// )
+
+// })
+// .catch(function (error) {
+//     if (error) throw error;
+// });
+
 // NOT DONE
 function updateEmployeeManager() { };
 // NOT DONE
